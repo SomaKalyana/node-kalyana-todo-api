@@ -16,13 +16,15 @@ app.post('/todos', (req, res) => {
 
     newTodo.save().then((doc) => {
         res.send(doc);
-        console.log(JSON.stringify(doc, undefined, 2));
+        // console.log(JSON.stringify(doc, undefined, 2));
     }, (e) => {
         res.status(400).send(e);
-        console.log('Unable to save todo ', e);
+        // console.log('Unable to save todo ', e);
     })
 })
 
 app.listen(3000, () => {
     console.log('Started on port 3000');
 })
+
+module.exports = {app};
