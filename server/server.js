@@ -1,11 +1,25 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+var env = process.env.NODE_ENV || 'development';
 
-var {ObjectID} = require('mongodb');
+console.log('env*****', env);
+
+if(env === 'development') {
+    process.env.PORT = 3000;
+    process.env.MONGODB_URI = 'mongodb://192.168.1.118:27017/TodoApp';
+} else if (env === 'test'){
+    process.env.PORT = 3000;
+    process.env.MONGODB_URI = 'mongodb://192.168.1.118:27017/TodoAppTest';
+}
+
+const _ = require('lodash');
+const express = require('express');
+const bodyParser = require('body-parser');
+const {ObjectID} = require('mongodb');
 
 var {mongoose} = require('./db/mongoose.js');
 var {Todo} = require('./models/todo.js');
 var {User} = require('./models/user.js');
+
+const port = process.env.PORT;
 
 var app = express();
 
@@ -64,11 +78,40 @@ app.delete('/todos/:id', (req, res) => {
         res.status(200).send({todo});
     }, (e) => {
         res.status(404).send();
-    })
+    }) 
 });
 
-app.listen(3000, () => {
-    console.log('Started on port 3000');
+app.patch('/todos/:id', (req, res) => {
+    var id = req.params.id ;
+    var body = _.pick(req.body, ['text', 'completed'])
+
+    console.log(body);
+    
+    if (!ObjectID.isValid(id)) {
+        return res.status(404).send();
+    }
+
+    if (_.isBoolean(body.completed) && body.completed) {
+        body.completedAt = new Date().getTime();
+    } else {
+        body.completed = false;
+        body.completedAt = null;
+    }
+    
+    Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+        if (!todo) {
+            res.status(404).send();
+        }
+
+        res.status(200).send({todo});
+
+    }).catch((err) => { 
+        res.status(400).send(err);
+    });
+})
+
+app.listen(port, () => {
+    console.log(`Started on port ${port}`);
 })
 
 module.exports = {app};
