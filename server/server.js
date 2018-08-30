@@ -116,7 +116,7 @@ app.post('/users', (req, res) => {
     var user = new User(body);
 
     user.save().then(() => {
-        console.log(JSON.stringify(user, undefined, 2));
+        // console.log(JSON.stringify(user, undefined, 2));
 
         return user.generateAuthToken();
     }).then((token) => {

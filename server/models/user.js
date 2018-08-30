@@ -94,13 +94,13 @@ UserSchema.statics.findByCredentials = function(email, password) {
 
 UserSchema.pre('save', function(next) {
     var user = this;
-    console.log(user.isModified('password'));
+    // console.log(user.isModified('password'));
 
     if (user.isModified('password')) {
         bcrypt.genSalt(10, (error, salt) => {
-            console.log(salt);
+            // console.log(salt);
             bcrypt.hash(user.password, salt, (error, hash) => {
-                console.log(hash);
+                // console.log(hash);
                 user.password = hash;
                 next();
             });
